@@ -1,0 +1,31 @@
+﻿@model MyApp.Models.Product
+
+<h2>Add Product</h2>
+<form asp-action="Create" enctype="multipart/form-data">
+    <div>
+        <label>Name</label>
+        <input asp-for="Name" class="form-control" required />
+    </div>
+    <div>
+        <label>Price</label>
+        <input asp-for="Price" type="number" class="form-control" required />
+    </div>
+    <div>
+        <label>Upload Image</label>
+        <input type="file" name="imageFile" class="form-control" id="imageUpload" onchange="previewImage(event)" />
+        <img id="imagePreview" src="" width="400" style="display:none; margin-top:20px; margin-bottom:20px;" />
+    </div>
+    <button type="submit" class="btn btn-success">Save</button>
+</form>
+
+<script>
+    function previewImage(event) {
+        var reader = new FileReader();
+        reader.onload = function () {
+            var output = document.getElementById('imagePreview');
+            output.src = reader.result;
+            output.style.display = 'block';
+        };
+        reader.readAsDataURL(event.target.files[0]);
+    }
+</script>

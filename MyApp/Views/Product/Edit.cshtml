@@ -1,0 +1,44 @@
+﻿@model MyApp.Models.Product
+
+<h2>Edit Product</h2>
+<form asp-action="Edit" enctype="multipart/form-data">
+    <input type="hidden" asp-for="Id" />
+    <div>
+        <label>Name</label>
+        <input asp-for="Name" class="form-control" required />
+    </div>
+    <div>
+        <label>Price</label>
+        <input asp-for="Price" type="number" class="form-control" required />
+    </div>
+    <div>
+        <label>Current Image</label><br />
+        @if (!string.IsNullOrEmpty(Model.ImagePath))
+        {
+            <img id="existingImage" src="@Model.ImagePath" width="100" />
+        }
+    </div>
+    <div>
+        <label>Upload New Image</label>
+        <input type="file" name="imageFile" class="form-control" id="imageUpload" onchange="previewImage(event)" />
+        <img id="imagePreview" src="" width="100" style="display:none; margin-top:10px;" />
+    </div>
+    <button type="submit" class="btn btn-warning">Update</button>
+</form>
+
+<script>
+    function previewImage(event) {
+        var reader = new FileReader();
+        reader.onload = function () {
+            var output = document.getElementById('imagePreview');
+            output.src = reader.result;
+            output.style.display = 'block';
+
+            var existingImage = document.getElementById('existingImage');
+            if (existingImage) {
+                existingImage.style.display = 'none';
+            }
+        };
+        reader.readAsDataURL(event.target.files[0]);
+    }
+</script>
