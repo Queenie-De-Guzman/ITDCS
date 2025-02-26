@@ -361,4 +361,11 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+<<<<<<< HEAD
+/MyApp/Views/Home/Index.cshtml
+/.gitignore
+/MyApp/Views/Home/Index.cshtml
+=======
+/MyApp/appsettings.json
+>>>>>>> 1891db8df73d888174a75bc39888ea2f06d54dd7
 /MyApp/appsettings.json
