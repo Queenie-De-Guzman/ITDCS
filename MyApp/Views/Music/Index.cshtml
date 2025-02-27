@@ -11,6 +11,7 @@
             <th>Genre</th>
             <th>Year</th>
             <th>Cover</th>
+            <th>Preview</th>
             <th>Actions</th>
         </tr>
     </thead>
@@ -31,6 +32,19 @@
                     else
                     {
                         <img src="https://via.placeholder.com/50" alt="No Cover" class="rounded" />
+                    }
+                </td>
+                <td class="text-center">
+                    @if (!string.IsNullOrEmpty(item.AudioPath))
+                    {
+                        <audio controls style="width:100px;">
+                            <source src="@item.AudioPath" type="audio/mpeg">
+                            Your browser does not support the audio element.
+                        </audio>
+                    }
+                    else
+                    {
+                        <span class="text-muted">No Audio</span>
                     }
                 </td>
                 <td>

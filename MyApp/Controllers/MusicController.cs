@@ -45,27 +45,38 @@ namespace MyApp.Controllers
             return View("Create");
         }
 
-        // POST: Music/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Title,Artist,Album,Genre,Year,ImageFile")] MusicModel music)
+        public async Task<IActionResult> Create([Bind("Title,Artist,Album,Genre,Year,ImageFile,AudioFile")] MusicModel music)
         {
             if (ModelState.IsValid)
             {
+                // Handle Image Upload
                 if (music.ImageFile != null)
                 {
                     string uploadsFolder = Path.Combine(_hostEnvironment.WebRootPath, "uploads");
                     Directory.CreateDirectory(uploadsFolder);
-
-                    string uniqueFileName = $"{Path.GetFileNameWithoutExtension(music.ImageFile.FileName)}_{Path.GetRandomFileName()}{Path.GetExtension(music.ImageFile.FileName)}";
-                    string filePath = Path.Combine(uploadsFolder, uniqueFileName);
-
-                    using (var fileStream = new FileStream(filePath, FileMode.Create))
+                    string uniqueImageName = Guid.NewGuid().ToString() + Path.GetExtension(music.ImageFile.FileName);
+                    string imagePath = Path.Combine(uploadsFolder, uniqueImageName);
+                    using (var fileStream = new FileStream(imagePath, FileMode.Create))
                     {
                         await music.ImageFile.CopyToAsync(fileStream);
                     }
+                    music.ImagePath = "/uploads/" + uniqueImageName;
+                }
 
-                    music.ImagePath = "/uploads/" + uniqueFileName;
+                // Handle Audio Upload
+                if (music.AudioFile != null)
+                {
+                    string audioFolder = Path.Combine(_hostEnvironment.WebRootPath, "music");
+                    Directory.CreateDirectory(audioFolder);
+                    string uniqueAudioName = Guid.NewGuid().ToString() + Path.GetExtension(music.AudioFile.FileName);
+                    string audioPath = Path.Combine(audioFolder, uniqueAudioName);
+                    using (var fileStream = new FileStream(audioPath, FileMode.Create))
+                    {
+                        await music.AudioFile.CopyToAsync(fileStream);
+                    }
+                    music.AudioPath = "/music/" + uniqueAudioName;
                 }
 
                 _context.Music.Add(music);
@@ -74,6 +85,7 @@ namespace MyApp.Controllers
             }
             return View("Create", music);
         }
+
 
         // GET: Music/Edit/5
         public async Task<IActionResult> Edit(int? id)
@@ -86,10 +98,9 @@ namespace MyApp.Controllers
             return View("Edit", music);
         }
 
-        // POST: Music/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Title,Artist,Album,Genre,Year,ImageFile")] MusicModel music)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Title,Artist,Album,Genre,Year,ImageFile,AudioFile")] MusicModel music)
         {
             if (id != music.Id) return NotFound();
 
@@ -100,7 +111,6 @@ namespace MyApp.Controllers
                     var existingMusic = await _context.Music.FindAsync(id);
                     if (existingMusic == null) return NotFound();
 
-                    // Update only modified fields
                     existingMusic.Title = music.Title;
                     existingMusic.Artist = music.Artist;
                     existingMusic.Album = music.Album;
@@ -112,26 +122,43 @@ namespace MyApp.Controllers
                     {
                         string uploadsFolder = Path.Combine(_hostEnvironment.WebRootPath, "uploads");
                         Directory.CreateDirectory(uploadsFolder);
-
-                        string uniqueFileName = $"{Path.GetFileNameWithoutExtension(music.ImageFile.FileName)}_{Path.GetRandomFileName()}{Path.GetExtension(music.ImageFile.FileName)}";
+                        string uniqueFileName = Guid.NewGuid().ToString() + Path.GetExtension(music.ImageFile.FileName);
                         string filePath = Path.Combine(uploadsFolder, uniqueFileName);
-
                         using (var fileStream = new FileStream(filePath, FileMode.Create))
                         {
                             await music.ImageFile.CopyToAsync(fileStream);
                         }
 
-                        // Delete old image if it exists
+                        // Delete old image
                         if (!string.IsNullOrEmpty(existingMusic.ImagePath))
                         {
                             string oldFilePath = Path.Combine(_hostEnvironment.WebRootPath, existingMusic.ImagePath.TrimStart('/'));
-                            if (System.IO.File.Exists(oldFilePath))
-                            {
-                                System.IO.File.Delete(oldFilePath);
-                            }
+                            if (System.IO.File.Exists(oldFilePath)) System.IO.File.Delete(oldFilePath);
                         }
 
                         existingMusic.ImagePath = "/uploads/" + uniqueFileName;
+                    }
+
+                    // Handle new audio upload
+                    if (music.AudioFile != null)
+                    {
+                        string audioFolder = Path.Combine(_hostEnvironment.WebRootPath, "music");
+                        Directory.CreateDirectory(audioFolder);
+                        string uniqueAudioName = Guid.NewGuid().ToString() + Path.GetExtension(music.AudioFile.FileName);
+                        string audioPath = Path.Combine(audioFolder, uniqueAudioName);
+                        using (var fileStream = new FileStream(audioPath, FileMode.Create))
+                        {
+                            await music.AudioFile.CopyToAsync(fileStream);
+                        }
+
+                        // Delete old audio file
+                        if (!string.IsNullOrEmpty(existingMusic.AudioPath))
+                        {
+                            string oldAudioPath = Path.Combine(_hostEnvironment.WebRootPath, existingMusic.AudioPath.TrimStart('/'));
+                            if (System.IO.File.Exists(oldAudioPath)) System.IO.File.Delete(oldAudioPath);
+                        }
+
+                        existingMusic.AudioPath = "/music/" + uniqueAudioName;
                     }
 
                     _context.Update(existingMusic);
@@ -139,15 +166,14 @@ namespace MyApp.Controllers
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!MusicExists(music.Id))
-                        return NotFound();
-                    else
-                        throw;
+                    if (!MusicExists(music.Id)) return NotFound();
+                    else throw;
                 }
                 return RedirectToAction(nameof(Index));
             }
             return View("Edit", music);
         }
+
 
         // GET: Music/Delete/5
         public async Task<IActionResult> Delete(int? id)
@@ -160,7 +186,6 @@ namespace MyApp.Controllers
             return View("Delete", music);
         }
 
-        // POST: Music/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
@@ -172,10 +197,14 @@ namespace MyApp.Controllers
                 if (!string.IsNullOrEmpty(music.ImagePath))
                 {
                     string filePath = Path.Combine(_hostEnvironment.WebRootPath, music.ImagePath.TrimStart('/'));
-                    if (System.IO.File.Exists(filePath))
-                    {
-                        System.IO.File.Delete(filePath);
-                    }
+                    if (System.IO.File.Exists(filePath)) System.IO.File.Delete(filePath);
+                }
+
+                // Delete audio file if exists
+                if (!string.IsNullOrEmpty(music.AudioPath))
+                {
+                    string audioPath = Path.Combine(_hostEnvironment.WebRootPath, music.AudioPath.TrimStart('/'));
+                    if (System.IO.File.Exists(audioPath)) System.IO.File.Delete(audioPath);
                 }
 
                 _context.Music.Remove(music);
@@ -184,9 +213,12 @@ namespace MyApp.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+
         private bool MusicExists(int id)
         {
             return _context.Music.Any(e => e.Id == id);
         }
+
+
     }
 }

@@ -10,25 +10,22 @@ namespace MyApp.Models
         public int Id { get; set; }
 
         [Required]
-        [MaxLength(200)]
         public string Title { get; set; }
 
         [Required]
-        [MaxLength(150)]
         public string Artist { get; set; }
 
-        [MaxLength(150)]
-        public string? Album { get; set; }
-
-        [MaxLength(100)]
-        public string? Genre { get; set; }
-
-        [Range(1800, 2100, ErrorMessage = "Year must be between 1800 and 2100")]
+        public string Album { get; set; }
+        public string Genre { get; set; }
         public int Year { get; set; }
 
         public string? ImagePath { get; set; }
+        public string? AudioPath { get; set; }
 
         [NotMapped]
         public IFormFile? ImageFile { get; set; }
+
+        [NotMapped]
+        public IFormFile? AudioFile { get; set; }
     }
 }

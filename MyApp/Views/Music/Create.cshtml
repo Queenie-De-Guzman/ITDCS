@@ -40,7 +40,15 @@
         <img id="imagePreview" width="150" height="150" style="display:none; margin-top:10px;" />
     </div>
 
+    <div class="form-group">
+        <label asp-for="AudioFile">Upload Music File</label>
+        <input asp-for="AudioFile" type="file" class="form-control-file" accept="audio/*" onchange="previewAudio(event)" />
+        <span asp-validation-for="AudioFile" class="text-danger"></span>
+        <audio id="audioPreview" controls style="display:none; margin-top:10px;"></audio>
+    </div>
+
     <button type="submit" class="btn btn-primary">Save</button>
+    <a asp-action="Index" class="btn btn-secondary">Cancel</a>
 </form>
 
 @section Scripts {
@@ -48,6 +56,18 @@
         function previewImage(event) {
             var fileInput = event.target;
             var output = document.getElementById('imagePreview');
+
+            if (fileInput.files && fileInput.files[0]) {
+                output.src = URL.createObjectURL(fileInput.files[0]);
+                output.style.display = 'block';
+            } else {
+                output.style.display = 'none';
+            }
+        }
+
+        function previewAudio(event) {
+            var fileInput = event.target;
+            var output = document.getElementById('audioPreview');
 
             if (fileInput.files && fileInput.files[0]) {
                 output.src = URL.createObjectURL(fileInput.files[0]);
