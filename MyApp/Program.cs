@@ -11,7 +11,13 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+// Add session services
+builder.Services.AddSession();
+builder.Services.AddDistributedMemoryCache(); // Required for session storage
+
 var app = builder.Build();
+
+app.UseSession();
 
 // Configure Middleware
 if (!app.Environment.IsDevelopment())
