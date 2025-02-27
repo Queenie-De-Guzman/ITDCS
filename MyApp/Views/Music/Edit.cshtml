@@ -1,0 +1,92 @@
+﻿@model MyApp.Models.MusicModel
+
+<h2>Edit Music</h2>
+
+<form asp-action="Edit" method="post" enctype="multipart/form-data">
+    <input type="hidden" asp-for="Id" />
+
+    <div class="form-group">
+        <label asp-for="Title"></label>
+        <input asp-for="Title" class="form-control" />
+        <span asp-validation-for="Title" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Artist"></label>
+        <input asp-for="Artist" class="form-control" />
+        <span asp-validation-for="Artist" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Album"></label>
+        <input asp-for="Album" class="form-control" />
+        <span asp-validation-for="Album" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Genre"></label>
+        <input asp-for="Genre" class="form-control" />
+        <span asp-validation-for="Genre" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Year"></label>
+        <input asp-for="Year" class="form-control" type="number" />
+        <span asp-validation-for="Year" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="ImageFile">Upload New Cover Image</label>
+        <input asp-for="ImageFile" type="file" class="form-control-file" accept="image/*" onchange="previewImage(event)" />
+        <span asp-validation-for="ImageFile" class="text-danger"></span>
+
+        @if (!string.IsNullOrEmpty(Model.ImagePath))
+        {
+            <p>Current Cover:</p>
+            <img src="@Model.ImagePath" width="150" height="150" id="imagePreview" />
+        }
+    </div>
+
+    <div class="form-group">
+        <label asp-for="AudioFile">Upload New Music File</label>
+        <input asp-for="AudioFile" type="file" class="form-control-file" accept="audio/*" onchange="previewAudio(event)" />
+        <span asp-validation-for="AudioFile" class="text-danger"></span>
+
+        @if (!string.IsNullOrEmpty(Model.AudioPath))
+        {
+            <p>Current Music:</p>
+            <audio controls>
+                <source src="@Model.AudioPath" type="audio/mpeg">
+                Your browser does not support the audio element.
+            </audio>
+        }
+    </div>
+
+    <button type="submit" class="btn btn-primary">Save</button>
+    <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+</form>
+
+@section Scripts {
+    <script>
+        function previewImage(event) {
+            var fileInput = event.target;
+            var output = document.getElementById('imagePreview');
+
+            if (fileInput.files && fileInput.files[0]) {
+                output.src = URL.createObjectURL(fileInput.files[0]);
+                output.style.display = 'block';
+            }
+        }
+
+        function previewAudio(event) {
+            var fileInput = event.target;
+            var output = document.getElementById('audioPreview');
+
+            if (fileInput.files && fileInput.files[0]) {
+                output.src = URL.createObjectURL(fileInput.files[0]);
+                output.style.display = 'block';
+            }
+        }
+    </script>
+    <partial name="_ValidationScriptsPartial" />
+}
