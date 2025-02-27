@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using MyApp.Data;
 using MyApp.Models;
@@ -24,7 +25,7 @@ namespace MyApp.Controllers
         // GET: Music
         public async Task<IActionResult> Index()
         {
-            var musicList = await _context.Music.ToListAsync();
+            var musicList = await _context.Music.Include(m => m.Playlist).ToListAsync();
             return View("Index", musicList);
         }
 
@@ -33,7 +34,7 @@ namespace MyApp.Controllers
         {
             if (id == null) return NotFound();
 
-            var music = await _context.Music.FirstOrDefaultAsync(m => m.Id == id);
+            var music = await _context.Music.Include(m => m.Playlist).FirstOrDefaultAsync(m => m.Id == id);
             if (music == null) return NotFound();
 
             return View("Details", music);
@@ -42,12 +43,13 @@ namespace MyApp.Controllers
         // GET: Music/Create
         public IActionResult Create()
         {
+            ViewBag.Playlists = new SelectList(_context.Playlists, "Id", "Name");
             return View("Create");
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Title,Artist,Album,Genre,Year,ImageFile,AudioFile")] MusicModel music)
+        public async Task<IActionResult> Create([Bind("Title,Artist,Album,Genre,Year,ImageFile,AudioFile,PlaylistId")] MusicModel music)
         {
             if (ModelState.IsValid)
             {
@@ -83,9 +85,9 @@ namespace MyApp.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
+            ViewBag.Playlists = new SelectList(_context.Playlists, "Id", "Name", music.PlaylistId);
             return View("Create", music);
         }
-
 
         // GET: Music/Edit/5
         public async Task<IActionResult> Edit(int? id)
@@ -95,12 +97,13 @@ namespace MyApp.Controllers
             var music = await _context.Music.FindAsync(id);
             if (music == null) return NotFound();
 
+            ViewBag.Playlists = new SelectList(_context.Playlists, "Id", "Name", music.PlaylistId);
             return View("Edit", music);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Title,Artist,Album,Genre,Year,ImageFile,AudioFile")] MusicModel music)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Title,Artist,Album,Genre,Year,ImageFile,AudioFile,PlaylistId")] MusicModel music)
         {
             if (id != music.Id) return NotFound();
 
@@ -116,6 +119,7 @@ namespace MyApp.Controllers
                     existingMusic.Album = music.Album;
                     existingMusic.Genre = music.Genre;
                     existingMusic.Year = music.Year;
+                    existingMusic.PlaylistId = music.PlaylistId;
 
                     // Handle new image upload
                     if (music.ImageFile != null)
@@ -171,9 +175,9 @@ namespace MyApp.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
+            ViewBag.Playlists = new SelectList(_context.Playlists, "Id", "Name", music.PlaylistId);
             return View("Edit", music);
         }
-
 
         // GET: Music/Delete/5
         public async Task<IActionResult> Delete(int? id)
@@ -213,12 +217,9 @@ namespace MyApp.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-
         private bool MusicExists(int id)
         {
             return _context.Music.Any(e => e.Id == id);
         }
-
-
     }
 }

@@ -15,9 +15,9 @@ namespace MyApp.Models
         [Required]
         public string Artist { get; set; }
 
-        public string Album { get; set; }
-        public string Genre { get; set; }
-        public int Year { get; set; }
+        public string? Album { get; set; }
+        public string? Genre { get; set; }
+        public int? Year { get; set; }
 
         public string? ImagePath { get; set; }
         public string? AudioPath { get; set; }
@@ -27,5 +27,11 @@ namespace MyApp.Models
 
         [NotMapped]
         public IFormFile? AudioFile { get; set; }
+
+        // Explicit Foreign Key Mapping
+        public int? PlaylistId { get; set; }
+
+        [ForeignKey(nameof(PlaylistId))] // Ensure EF Core recognizes the FK
+        public PlaylistModel? Playlist { get; set; }
     }
 }

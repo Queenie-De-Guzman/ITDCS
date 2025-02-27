@@ -1,0 +1,39 @@
+﻿@model IEnumerable<MyApp.Models.PlaylistModel>
+
+<h2>Playlists</h2>
+<a asp-action="Create" class="btn btn-success mb-3">Create New Playlist</a>
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Cover</th>
+            <th>Name</th>
+            <th>Description</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var playlist in Model)
+        {
+            <tr>
+                <td>
+                    @if (!string.IsNullOrEmpty(playlist.ImagePath))
+                    {
+                        <img src="@playlist.ImagePath" alt="Cover Image" class="img-thumbnail" width="100" />
+                    }
+                    else
+                    {
+                        <span>No Cover</span>
+                    }
+                </td>
+                <td>@playlist.Name</td>
+                <td>@playlist.Description</td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@playlist.Id" class="btn btn-primary">Edit</a>
+                    <a asp-action="Details" asp-route-id="@playlist.Id" class="btn btn-info">Details</a>
+                    <a asp-action="Delete" asp-route-id="@playlist.Id" class="btn btn-danger">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

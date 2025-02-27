@@ -21,6 +21,7 @@
             <div class="music-info">
                 <h5>@item.Title</h5>
                 <p>@item.Artist</p>
+                <P>@(item.Playlist != null ? item.Playlist.Name : "No Playlist")</P>
                 <p><small>@item.Album | @item.Genre | @item.Year</small></p>
                 <div class="music-audio">
                     @if (!string.IsNullOrEmpty(item.AudioPath))
