@@ -16,7 +16,13 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 builder.Services.AddDbContext<MusicDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+// Add session services
+builder.Services.AddSession();
+builder.Services.AddDistributedMemoryCache(); // Required for session storage
+
 var app = builder.Build();
+
+app.UseSession();
 
 // Middleware
 if (!app.Environment.IsDevelopment())
