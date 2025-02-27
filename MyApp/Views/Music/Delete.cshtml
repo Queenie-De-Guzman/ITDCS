@@ -1,0 +1,24 @@
+﻿@model MyApp.Models.MusicModel
+
+<h2>Delete Music</h2>
+
+<div class="text-center">
+    @if (!string.IsNullOrEmpty(Model.ImagePath))
+    {
+        <img src="@Model.ImagePath" alt="Cover Image" width="150" height="150" class="mb-3 rounded" />
+    }
+
+    <p>Are you sure you want to delete <strong>@Model.Title</strong> by <strong>@Model.Artist</strong>?</p>
+
+    @if (!string.IsNullOrEmpty(Model.Album))
+    {
+        <p><em>Album: @Model.Album</em></p>
+    }
+
+    <form asp-action="Delete" method="post">
+        <input type="hidden" asp-for="Id" />
+
+        <button type="submit" class="btn btn-danger btn-block">Delete</button>
+        <a asp-action="Index" class="btn btn-secondary btn-block">Cancel</a>
+    </form>
+</div>
